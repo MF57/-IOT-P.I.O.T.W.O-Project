@@ -97,3 +97,4 @@ ENV/
 .DS_Store
 out
 gen
+bower_components
