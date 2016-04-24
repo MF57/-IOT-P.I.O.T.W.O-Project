@@ -6,6 +6,8 @@
 
     <!--bower-->
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="bower_components/ng-dialog/css/ngDialog.css" />
+    <link rel="stylesheet" href="bower_components/ng-dialog/css/ngDialog-theme-default.css" />
     <!--endBower-->
     <link rel="stylesheet" href="css/main.css">
 </head>
@@ -49,6 +51,11 @@
             <label for="nodeIp">Node URL: </label>
             <input ng-model="selectedNode.ip" type="text" id="nodeIp" name="nodeIp" value="" class="form-control">
         </div>
+        <h3>Animation</h3>
+        <div ng-repeat="animation in selectedNode.animation">
+            {{animation.color}}
+        </div>
+        <button ng-click="openNewAnimationPopup()" type="button" class="btn btn-primary">Add New</button>
     </div>
 
 
@@ -59,6 +66,8 @@
 <script src="bower_components/angular/angular.min.js"></script>
 <script src="bower_components/jquery/dist/jquery.min.js"></script>
 <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="bower_components/ng-dialog/js/ngDialog.js"></script>
+
 <!--endBower-->
 
 <!--npm-->
@@ -66,5 +75,6 @@
 <!--endNpm-->
 
 <script src="scripts/app.js"></script>
+<script src="scripts/NewAnimationController.js"></script>
 </body>
 </html>

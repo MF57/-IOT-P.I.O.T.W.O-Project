@@ -2,9 +2,9 @@
  * Created by mf57 on 21.04.2016.
  */
 
-var myApp = angular.module('myApp', []);
+var myApp = angular.module('myApp', ['ngDialog']);
 
-myApp.controller('MainController', ['$scope', function ($scope) {
+myApp.controller('MainController', ['$scope', 'ngDialog', function ($scope, ngDialog) {
     
     $scope.width = 2;
     $scope.height = 3;
@@ -23,7 +23,7 @@ myApp.controller('MainController', ['$scope', function ($scope) {
             for (var j = 0; j < $scope.height; j++) {
                 var node = {};
                 node.ip = '';
-                node.animation = [];
+                node.animations = [];
                 node.column = i;
                 node.row = j;
                 column.nodes.push(node);
@@ -38,6 +38,22 @@ myApp.controller('MainController', ['$scope', function ($scope) {
     $scope.selectNode = function(node) {
         $scope.selectedNode = node;
         console.log(node);
+    };
+
+
+
+    $scope.openNewAnimationPopup = function() {
+        var dialog = ngDialog.open({
+            template: "new_animation.html",
+            controller: 'NewAnimationController'
+        });
+        dialog.closePromise.then(function (animation) {
+            $scope.addAnimation(animation.value);
+        });
+    };
+
+    $scope.addNewAnimation = function(animation) {
+        $scope.selectedNode.animations.push(animation);
     };
 
 
