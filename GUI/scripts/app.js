@@ -65,7 +65,13 @@ myApp.controller('MainController', ['$scope', 'ngDialog', '$timeout', function (
                 var node = $scope.board.columns[i].nodes[j];
                 if(node.animations.length > 0) {
                     var animation = node.animations[0];
-                    node.style = {"background-color": "rgb("+animation.color.r+","+animation.color.g+","+animation.color.b+")"};
+                    if(animation.off == true) {
+                        node.style = {
+                            "background-color": "none"
+                        };
+                    } else {
+                        node.style = {"background-color": "rgb("+animation.color.r+","+animation.color.g+","+animation.color.b+")"};
+                    }
                     $timeout(callAtTimeout, node.animations[0].time, true, node, 0);
                 }
             }
@@ -82,7 +88,7 @@ myApp.controller('MainController', ['$scope', 'ngDialog', '$timeout', function (
             };
             return;
         }
-        if(node.animations[i+1].off === true) {
+        if(node.animations[i+1].off == true) {
             node.style = {
                 "background-color": "none"
             };
