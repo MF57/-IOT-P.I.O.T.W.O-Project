@@ -6,6 +6,7 @@ angular.module('myApp').controller('NewAnimationController', ["$scope", function
         var self = this;
 
         self.animation = {};
+        self.animation.off = false;
 
         self.addAnimation = function () {
             $scope.closeThisDialog(self.animation);

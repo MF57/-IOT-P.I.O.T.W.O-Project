@@ -1,1 +1,29 @@
 <h2>Add New Animation</h2>
+<div class="form-group">
+    <label for="time">Time (millis) </label>
+    <input ng-model="ctrl.animation.time" type="number" id="time" name="rg-from" class="form-control">
+</div>
+<h4>Color</h4>
+<form class="form-inline" role="form">
+    <div class="form-group">
+        <label for="r">R:</label>
+        <input ng-model="ctrl.animation.color.r" type="number" class="form-control colorInput" id="r">
+    </div>
+    <div class="form-group">
+        <label for="g">G:</label>
+        <input ng-model="ctrl.animation.color.g" type="number" class="form-control colorInput" id="g">
+    </div>
+    <div class="form-group">
+        <label for="b">B:</label>
+        <input ng-model="ctrl.animation.color.b" type="number" class="form-control colorInput" id="b">
+    </div>
+</form>
+
+<h4>Power</h4>
+<div class="checkbox">
+    <label><input ng-model="ctrl.animation.off" type="checkbox" name="optcheckbox">Off</label>
+</div>
+
+<span class="text-center">
+    <button ng-click="ctrl.addAnimation()" type="button" class="btn btn-primary text-center">Add Animation</button>
+</span>

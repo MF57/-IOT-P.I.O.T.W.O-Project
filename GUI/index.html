@@ -52,8 +52,10 @@
             <input ng-model="selectedNode.ip" type="text" id="nodeIp" name="nodeIp" value="" class="form-control">
         </div>
         <h3>Animation</h3>
-        <div ng-repeat="animation in selectedNode.animation">
-            {{animation.color}}
+        <div ng-repeat="animation in selectedNode.animations">
+            <button type="button" class="btn anim-button">
+                {{animation.off === true ? "Off" : "rgb("+animation.color.r+","+animation.color.g+","+animation.color.b+")"}}
+                <span class="badge">{{animation.time}} ms</span></button>
         </div>
         <button ng-click="openNewAnimationPopup()" type="button" class="btn btn-primary">Add New</button>
     </div>

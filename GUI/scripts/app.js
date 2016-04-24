@@ -45,15 +45,17 @@ myApp.controller('MainController', ['$scope', 'ngDialog', function ($scope, ngDi
     $scope.openNewAnimationPopup = function() {
         var dialog = ngDialog.open({
             template: "new_animation.html",
-            controller: 'NewAnimationController'
+            controller: 'NewAnimationController',
+            controllerAs: "ctrl"
         });
         dialog.closePromise.then(function (animation) {
             $scope.addAnimation(animation.value);
         });
     };
 
-    $scope.addNewAnimation = function(animation) {
+    $scope.addAnimation = function(animation) {
         $scope.selectedNode.animations.push(animation);
+        console.log($scope.selectedNode.animations);
     };
 
 

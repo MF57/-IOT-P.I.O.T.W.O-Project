@@ -21,3 +21,12 @@
     border: 3px solid black;
     cursor: pointer;
 }
+
+.form-control.colorInput {
+    width: 90px;
+}
+
+.btn.anim-button {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
