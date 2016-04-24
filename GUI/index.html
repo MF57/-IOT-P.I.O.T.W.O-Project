@@ -37,7 +37,7 @@
             <button ng-click="refreshBoard()" type="button" class="btn btn-primary">Refresh board</button>
         </div>
         <div class="form-group">
-            <button ng-click="animate()" type="button" class="btn btn-primary">Preview</button>
+            <button ng-click="animate()" type="button" class="btn btn-primary">Animate</button>
         </div>
     </form>
 
@@ -52,7 +52,7 @@
         <h3>Node {{selectedNode.row*width+selectedNode.column}}</h3>
         <div class="form-group">
             <label for="nodeIp">Node URL: </label>
-            <input ng-model="selectedNode.ip" type="text" id="nodeIp" name="nodeIp" value="" class="form-control">
+            <input ng-blur="subscribeTopic()" ng-model="selectedNode.ip" type="text" id="nodeIp" name="nodeIp" value="" class="form-control">
         </div>
         <h3>Animation</h3>
         <div ng-repeat="animation in selectedNode.animations">

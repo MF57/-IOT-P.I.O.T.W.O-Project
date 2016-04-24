@@ -13,7 +13,7 @@ myApp.controller('MainController', ['$scope', 'ngDialog', '$timeout', function (
     $scope.selectedNode = {};
 
 
-    //  var client  = mqtt.connect('ws://localhost:3000');
+    var client  = mqtt.connect('ws://localhost:3000');
 
 
     $scope.refreshBoard = function () {
@@ -84,18 +84,22 @@ myApp.controller('MainController', ['$scope', 'ngDialog', '$timeout', function (
             node.style = {
                 "background-color": "none"
             };
+            client.publish(node.ip, "off");
             return;
         }
         if (node.animations[i + 1].off == true) {
             node.style = {
                 "background-color": "none"
             };
+            client.publish(node.ip, "off");
         } else {
             var animation = node.animations[i + 1];
             node.style = {
                 "background-color": "rgb(" + animation.color.r + "," + animation.color.g + "," + animation.color.b + ")"
             };
+            client.publish(node.ip, "rgb(" + animation.color.r + "," + animation.color.g + "," + animation.color.b + ")");
         }
+
         $timeout(callAtTimeout, node.animations[i + 1].time, true, node, i + 1);
     }
 
@@ -105,11 +109,15 @@ myApp.controller('MainController', ['$scope', 'ngDialog', '$timeout', function (
     //     client.publish('presence', 'Hello mqtt');
     // });
     //
-    // client.on('message', function (topic, message) {
-    //     // message is Buffer
-    //     console.log(message.toString());
-    //     client.end();
-    // });
+    
+    $scope.subscribeTopic = function() {
+        console.log($scope.selectedNode.ip);
+        client.subscribe($scope.selectedNode.ip);
+    };
+    client.on('message', function (topic, message) {
+        // message is Buffer
+        console.log(message.toString());
+    });
 
 
     $scope.refreshBoard();
