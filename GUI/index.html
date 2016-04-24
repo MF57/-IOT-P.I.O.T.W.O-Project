@@ -36,9 +36,23 @@
         </div>
     </form>
 
+    <div class="col-md-9 board">
+        <div style="float: left;" ng-repeat="column in board.columns">
+            <div ng-repeat="node in column.nodes">
+                <div ng-click="selectNode(node)" class="led"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 right-menu">
+        <h3>Node {{selectedNode.row*width+selectedNode.column}}</h3>
+        <div class="form-group">
+            <label for="nodeIp">Node URL: </label>
+            <input ng-model="selectedNode.ip" type="text" id="nodeIp" name="nodeIp" value="" class="form-control">
+        </div>
+    </div>
+
 
 </div>
-
 
 
 <!--bower-->

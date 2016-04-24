@@ -9,25 +9,35 @@ myApp.controller('MainController', ['$scope', function ($scope) {
     $scope.width = 2;
     $scope.height = 3;
 
-    $scope.nodes = [];
+    $scope.board = [];
+    $scope.selectedNode = {};
 
 
 
     $scope.refreshBoard = function() {
-        $scope.nodes = [];
-        for (var i = 0; i < $scope.height; i++) {
-            var row = [];
-            for (var j = 0; j < $scope.width; j++) {
+        $scope.board = {};
+        $scope.board.columns = [];
+        for (var i = 0; i < $scope.width; i++) {
+            var column = {};
+            column.nodes = [];
+            for (var j = 0; j < $scope.height; j++) {
                 var node = {};
                 node.ip = '';
                 node.animation = [];
-                node.row = i;
-                node.column = j;
-                row.push(node);
+                node.column = i;
+                node.row = j;
+                column.nodes.push(node);
             }
-            $scope.nodes.push(row);
+            $scope.board.columns.push(column);
         }
-        console.log($scope.nodes);
+        $scope.selectedNode = $scope.board.columns[0].nodes[0];
+        console.log($scope.board);
+        console.log($scope.selectedNode);
+    };
+
+    $scope.selectNode = function(node) {
+        $scope.selectedNode = node;
+        console.log(node);
     };
 
 
