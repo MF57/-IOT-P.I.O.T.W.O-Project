@@ -5,7 +5,7 @@
 var myApp = angular.module('myApp', ['ngDialog']);
 
 myApp.controller('MainController', ['$scope', 'ngDialog', '$timeout', function ($scope, ngDialog, $timeout) {
-    
+
     $scope.width = 2;
     $scope.height = 3;
 
@@ -13,11 +13,10 @@ myApp.controller('MainController', ['$scope', 'ngDialog', '$timeout', function (
     $scope.selectedNode = {};
 
 
-  //  var client  = mqtt.connect('ws://localhost:3000');
+    //  var client  = mqtt.connect('ws://localhost:3000');
 
 
-
-    $scope.refreshBoard = function() {
+    $scope.refreshBoard = function () {
         $scope.board = {};
         $scope.board.columns = [];
         for (var i = 0; i < $scope.width; i++) {
@@ -29,7 +28,7 @@ myApp.controller('MainController', ['$scope', 'ngDialog', '$timeout', function (
                 node.animations = [];
                 node.column = i;
                 node.row = j;
-                node.style={"background-color":"none"};
+                node.style = {"background-color": "none"};
                 column.nodes.push(node);
             }
             $scope.board.columns.push(column);
@@ -37,13 +36,12 @@ myApp.controller('MainController', ['$scope', 'ngDialog', '$timeout', function (
         $scope.selectedNode = $scope.board.columns[0].nodes[0];
     };
 
-    $scope.selectNode = function(node) {
+    $scope.selectNode = function (node) {
         $scope.selectedNode = node;
     };
 
 
-
-    $scope.openNewAnimationPopup = function() {
+    $scope.openNewAnimationPopup = function () {
         var dialog = ngDialog.open({
             template: "new_animation.html",
             controller: 'NewAnimationController',
@@ -54,23 +52,23 @@ myApp.controller('MainController', ['$scope', 'ngDialog', '$timeout', function (
         });
     };
 
-    $scope.addAnimation = function(animation) {
+    $scope.addAnimation = function (animation) {
         $scope.selectedNode.animations.push(animation);
     };
 
 
-    $scope.animate = function() {
+    $scope.animate = function () {
         for (var i = 0; i < $scope.width; i++) {
             for (var j = 0; j < $scope.height; j++) {
                 var node = $scope.board.columns[i].nodes[j];
-                if(node.animations.length > 0) {
+                if (node.animations.length > 0) {
                     var animation = node.animations[0];
-                    if(animation.off == true) {
+                    if (animation.off == true) {
                         node.style = {
                             "background-color": "none"
                         };
                     } else {
-                        node.style = {"background-color": "rgb("+animation.color.r+","+animation.color.g+","+animation.color.b+")"};
+                        node.style = {"background-color": "rgb(" + animation.color.r + "," + animation.color.g + "," + animation.color.b + ")"};
                     }
                     $timeout(callAtTimeout, node.animations[0].time, true, node, 0);
                 }
@@ -81,24 +79,24 @@ myApp.controller('MainController', ['$scope', 'ngDialog', '$timeout', function (
     };
 
 
-    function callAtTimeout(node, i){
-        if(i == node.animations.length-1) {
+    function callAtTimeout(node, i) {
+        if (i == node.animations.length - 1) {
             node.style = {
                 "background-color": "none"
             };
             return;
         }
-        if(node.animations[i+1].off == true) {
+        if (node.animations[i + 1].off == true) {
             node.style = {
                 "background-color": "none"
             };
         } else {
-            var animation = node.animations[i+1];
+            var animation = node.animations[i + 1];
             node.style = {
-                "background-color": "rgb("+animation.color.r+","+animation.color.g+","+animation.color.b+")"
+                "background-color": "rgb(" + animation.color.r + "," + animation.color.g + "," + animation.color.b + ")"
             };
         }
-        $timeout(callAtTimeout, node.animations[i+1].time, true, node, i+1);
+        $timeout(callAtTimeout, node.animations[i + 1].time, true, node, i + 1);
     }
 
     //
