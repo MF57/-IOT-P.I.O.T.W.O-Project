@@ -102,16 +102,9 @@ myApp.controller('MainController', ['$scope', 'ngDialog', '$timeout', function (
 
         $timeout(callAtTimeout, node.animations[i + 1].time, true, node, i + 1);
     }
-
-    //
-    // client.on('connect', function () {
-    //     client.subscribe('presence');
-    //     client.publish('presence', 'Hello mqtt');
-    // });
-    //
+    
     
     $scope.subscribeTopic = function() {
-        console.log($scope.selectedNode.ip);
         client.subscribe($scope.selectedNode.ip);
     };
     client.on('message', function (topic, message) {
