@@ -1,0 +1,13 @@
+{
+  "name": "application-name",
+  "version": "0.0.1",
+  "description": "Simple project for managing LED animations using IOT Devices",
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MF57/-IOT-P.I.O.T.W.O-Project.git"
+  },
+  "dependencies": {
+    "mqtt": "^1.8.0"
+  }
+}

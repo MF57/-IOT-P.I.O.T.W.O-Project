@@ -98,3 +98,4 @@ ENV/
 out
 gen
 bower_components
+node_modules
