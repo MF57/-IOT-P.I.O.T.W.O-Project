@@ -4,6 +4,7 @@
 import os
 from serial import Serial
 
+import thread
 from vcopernicus_light_show import mosquitto
 
 NODE_IP = "node_ip"
@@ -16,13 +17,30 @@ serial = Serial(SERIAL_PATH, 38400, rtscts=True, dsrdtr=True)
 # ----- BEGIN MQTT LOGIC -----
 
 
+def handle_button_and_knob():
+    serial.write(chr(128 + 32 + 16 + 8 + 4 + 1))
+    global mqtt_client
+    while True:
+        cc = serial.read(1)
+        if len(cc) > 0:
+            ch = ord(cc)
+            if 64 <= ch < 128:  # KNOB
+                print "Curtains " + str(ch)
+                # publishing message on topic with QoS 0 and the message is not Retained
+                mqtt_client.publish("all", "0", 0, False)
+            elif ch == 195 or ch == 197:  # BUTTONS
+                print "Light " + str(ch)
+                # publishing message on topic with QoS 0 and the message is not Retained
+                mqtt_client.publish("all", "0", 0, False)
+
+
 def on_connect(mqtt_client, obj, rc):
     print("rc: " + str(rc))
 
 
 def on_message(mqtt_client, obj, msg):
-    serial.write(chr(int(msg.payload) % 32 + 66))
-    print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
+    serial.write(chr(int(msg.payload) % 32 + 64))
+    print("Setting diode's color to " + str(msg.payload) + " (" + msg.topic + ")")
 
 
 def on_publish(mqtt_client, obj, mid):
@@ -30,13 +48,11 @@ def on_publish(mqtt_client, obj, mid):
 
 
 def on_subscribe(mqtt_client, obj, mid, granted_qos):
-    print("Subscribed: " + str(obj) + str(mid) + " " + str(granted_qos))
+    print("Subscribed: " + str(mid) + " " + str(granted_qos))
 
 
 def on_log(mqtt_client, obj, level, string):
     print(string)
-
-serial.write(chr(128 + 32 + 16 + 8 + 4 + 1))
 
 # If you want to use a specific client id, use
 # mqtt_client = mqtt.Client("client-id")
@@ -56,26 +72,17 @@ mqtt_client.on_subscribe = on_subscribe
 
 mqtt_client.connect("127.0.0.1", 1883, 60)
 
-mqtt_client.subscribe(NODE_IP, 0)
+# start thread handling button and knob
+try:
+    thread.start_new_thread(handle_button_and_knob, ())
+except:
+    print "Error: unable to start thread"
 
-# publishing message on topic with QoS 0 and the message is not Retained
-# mqtt_client.publish("temp/floor1/room1/pref1", "20", 0, False)
+mqtt_client.subscribe(NODE_IP, 0)
+mqtt_client.subscribe("all", 0)
 
 mqtt_client.loop_forever()
 
 # ----- END MQTT_LOGIC -----
 
-# TODO start second thread handling serial
 
-# ----- BEGIN BUSINESS LOGIC -----
-
-serial.write(chr(128 + 32 + 16 + 8 + 4 + 1))
-
-while True:
-    cc = serial.read(1)
-    if len(cc) > 0:
-        ch = ord(cc)
-        serial.write(chr(ch % 32 + 64))
-        # print ch
-
-# ----- BEGIN BUSINESS LOGIC -----
