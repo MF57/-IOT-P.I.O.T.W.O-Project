@@ -55,6 +55,10 @@ myApp.controller('MainController', ['$scope', 'ngDialog', '$timeout', function (
     $scope.addAnimation = function (animation) {
         $scope.selectedNode.animations.push(animation);
     };
+    
+    $scope.copyFromFirstNode = function() {
+        $scope.selectedNode.animations = $scope.board.columns[0].nodes[0].animations;
+    };
 
 
     $scope.animate = function () {
