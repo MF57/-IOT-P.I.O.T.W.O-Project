@@ -43,12 +43,12 @@ def handle_button_and_knob():
             if 64 <= ch < 128:  # KNOB
                 print "Changed curtains " + str(ch)
                 # publishing message on topic with QoS 0 and the message is not Retained
-                mqtt_client.publish("all", str(current_color-1), 0, False)
+                mqtt_client.publish("color/"+str(current_color), str(current_color-1), 0, False)
                 # serial.write(chr(ch % 64 + 64))
             elif ch == 195 or ch == 197:  # BUTTONS
                 print "Changed light " + str(ch)
                 # publishing message on topic with QoS 0 and the message is not Retained
-                mqtt_client.publish("all", "off", 0, False)
+                mqtt_client.publish("color/"+str(current_color), "off", 0, False)
 
 
 def on_connect(mqtt_client, obj, rc):
@@ -57,7 +57,10 @@ def on_connect(mqtt_client, obj, rc):
 
 def on_message(mqtt_client, obj, msg):
     global current_color
+    mqtt_client.unsubscribe("color/"+str(current_color))
     current_color = map_diode_color(msg.payload)
+    mqtt_client.subscribe("color/" + str(current_color), 0)
+    print "color " + str(current_color)
     serial.write(chr(current_color % 64 + 64))
     print("Setting diode's color to " + str(current_color) + " (" + msg.topic + ")")
 
