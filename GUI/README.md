@@ -1,5 +1,6 @@
 Project P.I.O.T.W.I.O
 
+In GUI directory:
 bower install
 npm install
 (sudo if failed)

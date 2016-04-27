@@ -1,0 +1,25 @@
+{
+  "name": "P.I.O.T.W.O Project",
+  "description": "Simple project for managing LED animations using IOT Devices",
+  "main": "index.html",
+  "authors": [
+    "MF57 <p-bochenek@outlook.com>"
+  ],
+  "license": "BSD-3-Clause",
+  "keywords": [
+    "iot"
+  ],
+  "homepage": "https://github.com/MF57/-IOT-P.I.O.T.W.O-Project",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "^1.5.5",
+    "bootstrap": "^3.3.6",
+    "ng-dialog": "^0.6.0"
+  }
+}
