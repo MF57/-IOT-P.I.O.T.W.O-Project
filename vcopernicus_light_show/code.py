@@ -8,6 +8,7 @@ import thread
 from vcopernicus_light_show import mosquitto
 
 NODE_IP = "node_ip"
+current_color = 0
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 SERIAL_PATH = os.path.join(BASE_DIR, 'dev', 'ttyS0')
 
@@ -17,21 +18,37 @@ serial = Serial(SERIAL_PATH, 38400, rtscts=True, dsrdtr=True)
 # ----- BEGIN MQTT LOGIC -----
 
 
+def map_diode_color(color):
+    if color == "off":
+        return 0
+    elif color[:3] == "rgb":
+        color = color[4:-1]
+        rgb = color.split(',')
+        for i in range(3):
+            rgb[i] = int(rgb[i])/64
+        col = rgb[0] * 16 + rgb[1] * 4 + rgb[2]
+        return col
+    else:
+        return int(color) % 64
+
+
 def handle_button_and_knob():
     serial.write(chr(128 + 32 + 16 + 8 + 4 + 1))
     global mqtt_client
+    global current_color
     while True:
         cc = serial.read(1)
         if len(cc) > 0:
             ch = ord(cc)
             if 64 <= ch < 128:  # KNOB
-                print "Curtains " + str(ch)
+                print "Changed curtains " + str(ch)
                 # publishing message on topic with QoS 0 and the message is not Retained
-                mqtt_client.publish("all", "0", 0, False)
+                mqtt_client.publish("all", str(current_color-1), 0, False)
+                # serial.write(chr(ch % 64 + 64))
             elif ch == 195 or ch == 197:  # BUTTONS
-                print "Light " + str(ch)
+                print "Changed light " + str(ch)
                 # publishing message on topic with QoS 0 and the message is not Retained
-                mqtt_client.publish("all", "0", 0, False)
+                mqtt_client.publish("all", "off", 0, False)
 
 
 def on_connect(mqtt_client, obj, rc):
@@ -39,12 +56,15 @@ def on_connect(mqtt_client, obj, rc):
 
 
 def on_message(mqtt_client, obj, msg):
-    serial.write(chr(int(msg.payload) % 32 + 64))
-    print("Setting diode's color to " + str(msg.payload) + " (" + msg.topic + ")")
+    global current_color
+    current_color = map_diode_color(msg.payload)
+    serial.write(chr(current_color % 64 + 64))
+    print("Setting diode's color to " + str(current_color) + " (" + msg.topic + ")")
 
 
 def on_publish(mqtt_client, obj, mid):
-    print("mid: " + str(mid))
+    # print("mid: " + str(mid))
+    pass
 
 
 def on_subscribe(mqtt_client, obj, mid, granted_qos):
@@ -69,7 +89,6 @@ mqtt_client.on_subscribe = on_subscribe
 
 # setting testament for that client
 # mqtt_client.will_set("temp/floor1/room1/pref1", "broken", 0, True)
-
 mqtt_client.connect("127.0.0.1", 1883, 60)
 
 # start thread handling button and knob
