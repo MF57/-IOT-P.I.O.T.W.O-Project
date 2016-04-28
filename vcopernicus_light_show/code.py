@@ -8,7 +8,6 @@ from serial import Serial
 
 from vcopernicus_light_show import mosquitto
 
-# SETTINGS
 ALLOW_IP_AUTO_CONFIG = False
 ENABLE_KNOB_COLOR_CHANGE = False
 ALLOW_MULTIPLE_COLOR_CHANGES = False
@@ -42,6 +41,8 @@ def handle_button_and_knob():
     serial.write(chr(128 + 32 + 16 + 8 + 4 + 1))
     global mqtt_client
     global current_color
+    global ENABLE_KNOB_COLOR_CHANGE
+    global ALLOW_MULTIPLE_COLOR_CHANGES
     used_knob = False
     while True:
         cc = serial.read(1)
@@ -51,7 +52,7 @@ def handle_button_and_knob():
                 if not used_knob:
                     print "Changed curtains " + str(ch)
                     if ENABLE_KNOB_COLOR_CHANGE:
-                        mqtt_client.publish("color/"+str(current_color % 64 + 64), str(current_color-1), 0, False)
+                        mqtt_client.publish("color/"+str(current_color), str(current_color-1), 0, False)
                     else:
                         mqtt_client.publish("all", str(current_color - 1), 0, False)
                     if not ALLOW_MULTIPLE_COLOR_CHANGES:
@@ -61,7 +62,7 @@ def handle_button_and_knob():
                     used_knob = False
                 print "Changed light " + str(ch)
                 if ENABLE_KNOB_COLOR_CHANGE:
-                    mqtt_client.publish("color/"+str(current_color % 64 + 64), "off", 0, False)
+                    mqtt_client.publish("color/"+str(current_color), "off", 0, False)
                 else:
                     mqtt_client.publish("all", "off", 0, False)
 
@@ -72,11 +73,10 @@ def on_connect(mqtt_client, obj, rc):
 
 def on_message(mqtt_client, obj, msg):
     global current_color
-    if ENABLE_KNOB_COLOR_CHANGE:
-        mqtt_client.unsubscribe("color/"+str(current_color))
+    mqtt_client.unsubscribe("color/"+str(current_color))
     current_color = map_diode_color(msg.payload)
-    if ENABLE_KNOB_COLOR_CHANGE:
-        mqtt_client.subscribe("color/" + str(current_color), 0)
+    print "color " + str(current_color) + " " + chr(current_color)
+    mqtt_client.subscribe("color/" + str(current_color), 0)
     serial.write(chr(current_color % 64 + 64))
     print("Setting diode's color to " + str(current_color) + " (" + msg.topic + ")")
 
@@ -119,11 +119,10 @@ except:
     print "Error: unable to start thread"
 
 mqtt_client.subscribe(NODE_IP, 0)
-if not ENABLE_KNOB_COLOR_CHANGE:
-    mqtt_client.subscribe("all", 0)
+mqtt_client.subscribe("all", 0)
 
 mqtt_client.loop_forever()
 
-# ----- END MQTT_LOGIC -----
+# ----- END MQTT LOGIC -----
 
 
