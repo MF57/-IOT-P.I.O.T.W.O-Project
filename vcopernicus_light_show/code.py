@@ -2,12 +2,18 @@
 
 # ----- BEGIN INITIALIZATION -----
 import os
+import socket
+import thread
 from serial import Serial
 
-import thread
 from vcopernicus_light_show import mosquitto
 
-NODE_IP = "node_ip"
+# SETTINGS
+ALLOW_IP_AUTO_CONFIG = False
+ENABLE_KNOB_COLOR_CHANGE = False
+ALLOW_MULTIPLE_COLOR_CHANGES = False
+
+NODE_IP = "enter_node_ip" if not ALLOW_IP_AUTO_CONFIG else socket.gethostbyname(socket.gethostname())
 current_color = 0
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 SERIAL_PATH = os.path.join(BASE_DIR, 'dev', 'ttyS0')
@@ -27,7 +33,7 @@ def map_diode_color(color):
         for i in range(3):
             rgb[i] = int(rgb[i])/64
         col = rgb[0] * 16 + rgb[1] * 4 + rgb[2]
-        return col
+        return col % 64
     else:
         return int(color) % 64
 
@@ -36,19 +42,28 @@ def handle_button_and_knob():
     serial.write(chr(128 + 32 + 16 + 8 + 4 + 1))
     global mqtt_client
     global current_color
+    used_knob = False
     while True:
         cc = serial.read(1)
         if len(cc) > 0:
             ch = ord(cc)
             if 64 <= ch < 128:  # KNOB
-                print "Changed curtains " + str(ch)
-                # publishing message on topic with QoS 0 and the message is not Retained
-                mqtt_client.publish("color/"+str(current_color), str(current_color-1), 0, False)
-                # serial.write(chr(ch % 64 + 64))
+                if not used_knob:
+                    print "Changed curtains " + str(ch)
+                    if ENABLE_KNOB_COLOR_CHANGE:
+                        mqtt_client.publish("color/"+str(current_color % 64 + 64), str(current_color-1), 0, False)
+                    else:
+                        mqtt_client.publish("all", str(current_color - 1), 0, False)
+                    if not ALLOW_MULTIPLE_COLOR_CHANGES:
+                        used_knob = True
             elif ch == 195 or ch == 197:  # BUTTONS
+                if not ALLOW_MULTIPLE_COLOR_CHANGES:
+                    used_knob = False
                 print "Changed light " + str(ch)
-                # publishing message on topic with QoS 0 and the message is not Retained
-                mqtt_client.publish("color/"+str(current_color), "off", 0, False)
+                if ENABLE_KNOB_COLOR_CHANGE:
+                    mqtt_client.publish("color/"+str(current_color % 64 + 64), "off", 0, False)
+                else:
+                    mqtt_client.publish("all", "off", 0, False)
 
 
 def on_connect(mqtt_client, obj, rc):
@@ -57,10 +72,11 @@ def on_connect(mqtt_client, obj, rc):
 
 def on_message(mqtt_client, obj, msg):
     global current_color
-    mqtt_client.unsubscribe("color/"+str(current_color))
+    if ENABLE_KNOB_COLOR_CHANGE:
+        mqtt_client.unsubscribe("color/"+str(current_color))
     current_color = map_diode_color(msg.payload)
-    mqtt_client.subscribe("color/" + str(current_color), 0)
-    print "color " + str(current_color)
+    if ENABLE_KNOB_COLOR_CHANGE:
+        mqtt_client.subscribe("color/" + str(current_color), 0)
     serial.write(chr(current_color % 64 + 64))
     print("Setting diode's color to " + str(current_color) + " (" + msg.topic + ")")
 
@@ -76,6 +92,8 @@ def on_subscribe(mqtt_client, obj, mid, granted_qos):
 
 def on_log(mqtt_client, obj, level, string):
     print(string)
+
+print "Starting a node with " + NODE_IP + " ip."
 
 # If you want to use a specific client id, use
 # mqtt_client = mqtt.Client("client-id")
@@ -101,7 +119,8 @@ except:
     print "Error: unable to start thread"
 
 mqtt_client.subscribe(NODE_IP, 0)
-mqtt_client.subscribe("all", 0)
+if not ENABLE_KNOB_COLOR_CHANGE:
+    mqtt_client.subscribe("all", 0)
 
 mqtt_client.loop_forever()
 
