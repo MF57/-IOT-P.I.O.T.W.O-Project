@@ -1,10 +1,16 @@
-Project P.I.O.T.W.I.O
+#Project P.I.O.T.W.O
 
-In GUI directory:
-bower install
-npm install
+## GUI
+To start workin with P.I.O.T.W.O GUI, from main project folder write following in console
+> cd GUI
+>
+> bower install
+>
+> npm install
+
 (sudo if failed)
 
-mosca -v --http-port 3000 --http-bundle --http-static ./ | bunyan
+##MQTT server
+To start test mqtt server:
 
-(to start test server)
+> mosca -v --http-port 3000 --http-bundle --http-static ./ | bunyan
